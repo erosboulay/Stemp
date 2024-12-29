@@ -94,7 +94,11 @@ public class NavigationActivity extends AppCompatActivity {
                 WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
         windowInsetsController.hide(WindowInsetsCompat.Type.systemBars());
 
+        // What the actual fuck the two previous code fragments together successfully the system bars idk why but i ain't complaining
+
         setContentView(R.layout.activity_navigation);
+
+
 
         // set first page
         backButton = findViewById(R.id.backButton);
