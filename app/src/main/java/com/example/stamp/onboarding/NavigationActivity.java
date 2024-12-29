@@ -1,10 +1,12 @@
 package com.example.stamp.onboarding;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.Html;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -22,6 +24,8 @@ import com.example.stamp.MainActivity;
 import com.example.stamp.R;
 
 public class NavigationActivity extends AppCompatActivity {
+    // swiper no swiping
+
     // perms cst
     private static final String PERMISSION_CALL_LOG = Manifest.permission.READ_CALL_LOG;
     private static final int PERMISSION_REQ_CODE = 100;
@@ -41,6 +45,7 @@ public class NavigationActivity extends AppCompatActivity {
         @Override
         public void onPageSelected(int position) {
             setDotIndicator(position);
+
             if (position > 0) {
                 backButton.setVisibility(View.VISIBLE);
             } else {
@@ -48,6 +53,8 @@ public class NavigationActivity extends AppCompatActivity {
             }
             if (position == 2){
                 nextButton.setText("Get Started");
+            } else if (position == 1){
+                nextButton.setText("Allow");
             } else {
                 nextButton.setText("Next");
             }
@@ -56,10 +63,11 @@ public class NavigationActivity extends AppCompatActivity {
         public void onPageScrollStateChanged(int state) {
         }
     };
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         SplashScreen.installSplashScreen(this);
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_navigation);
         backButton = findViewById(R.id.backButton);
         nextButton = findViewById(R.id.nextButton);
@@ -74,7 +82,9 @@ public class NavigationActivity extends AppCompatActivity {
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (getItem(0) < 2)
+                if (getItem(0) == 1)
+                    requestRuntimePermission();
+                else if (getItem(0) < 2)
                     slideViewPager.setCurrentItem(getItem(1), true);
                 else {
                     Intent i = new Intent(NavigationActivity.this, MainActivity.class);
@@ -83,7 +93,22 @@ public class NavigationActivity extends AppCompatActivity {
                 }
             }
         });
-        slideViewPager = (ViewPager) findViewById(R.id.slideViewPager);
+
+
+        slideViewPager = findViewById(R.id.slideViewPager);
+
+        // disable swiping
+        slideViewPager.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return true;
+            }
+        });
+
+        // ease-in , ease-out
+
+
+
         dotIndicator = (LinearLayout) findViewById(R.id.dotIndicator);
         viewPagerAdapter = new ViewPagerAdapter(this);
         slideViewPager.setAdapter(viewPagerAdapter);
@@ -109,7 +134,7 @@ public class NavigationActivity extends AppCompatActivity {
     // perms functions
     private void requestRuntimePermission(){
         if (ActivityCompat.checkSelfPermission(this, PERMISSION_CALL_LOG) == PackageManager.PERMISSION_GRANTED){
-            Toast.makeText(this, "Permission Granted.", Toast.LENGTH_LONG).show();
+            slideViewPager.setCurrentItem(getItem(1), true);
         }
         else{
             ActivityCompat.requestPermissions(this, new String[]{PERMISSION_CALL_LOG}, PERMISSION_REQ_CODE);
@@ -121,7 +146,7 @@ public class NavigationActivity extends AppCompatActivity {
 
         if (requestCode == PERMISSION_REQ_CODE){
             if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                Toast.makeText(this, "Permission Granted. You can use the API now", Toast.LENGTH_LONG).show();
+                slideViewPager.setCurrentItem(getItem(1), true);
             }
             else{
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);

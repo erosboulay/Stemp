@@ -2,6 +2,7 @@ package com.example.stamp.onboarding;
 
 import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -13,6 +14,7 @@ import androidx.viewpager.widget.PagerAdapter;
 import com.example.stamp.R;
 
 public class ViewPagerAdapter extends PagerAdapter {
+
     Context context;
     int[] sliderAllImages = {
             R.drawable.app_icon_192,
@@ -32,6 +34,7 @@ public class ViewPagerAdapter extends PagerAdapter {
     public ViewPagerAdapter(Context context){
         this.context = context;
     }
+
     @Override
     public int getCount() {
         return sliderAllTitle.length;
@@ -49,6 +52,9 @@ public class ViewPagerAdapter extends PagerAdapter {
         ImageView sliderImage = (ImageView) view.findViewById(R.id.sliderImage);
         TextView sliderTitle = (TextView) view.findViewById(R.id.sliderTitle);
         TextView sliderDesc = (TextView) view.findViewById(R.id.sliderDesc);
+        if (position == 1){
+            sliderDesc.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
+        }
         sliderImage.setImageResource(sliderAllImages[position]);
         sliderTitle.setText(this.sliderAllTitle[position]);
         sliderDesc.setText(this.sliderAllDesc[position]);
@@ -60,4 +66,5 @@ public class ViewPagerAdapter extends PagerAdapter {
     public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
         container.removeView((LinearLayout)object);
     }
+
 }
