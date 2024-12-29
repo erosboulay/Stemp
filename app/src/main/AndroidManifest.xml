@@ -15,9 +15,6 @@
         android:theme="@style/Theme.Stamp"
         tools:targetApi="31">
         <activity
-            android:name=".onboarding.GetStarted"
-            android:exported="false" />
-        <activity
             android:name=".MainActivity"
             android:exported="false" />
         <activity

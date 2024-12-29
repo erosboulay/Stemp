@@ -18,9 +18,11 @@ public class NavigationActivity extends AppCompatActivity {
     // instantiate all necessary items
     ViewPager slideViewPager;
     LinearLayout dotIndicator;
-    Button backButton, nextButton, skipButton;
+    Button backButton, nextButton;
     TextView[] dots;
     ViewPagerAdapter viewPagerAdapter;
+
+    // Update UI when you change a page
     ViewPager.OnPageChangeListener viewPagerListener = new ViewPager.OnPageChangeListener() {
         @Override
         public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -34,7 +36,7 @@ public class NavigationActivity extends AppCompatActivity {
                 backButton.setVisibility(View.INVISIBLE);
             }
             if (position == 2){
-                nextButton.setText("Finish");
+                nextButton.setText("Get Started");
             } else {
                 nextButton.setText("Next");
             }
@@ -50,7 +52,6 @@ public class NavigationActivity extends AppCompatActivity {
         setContentView(R.layout.activity_navigation);
         backButton = findViewById(R.id.backButton);
         nextButton = findViewById(R.id.nextButton);
-        skipButton = findViewById(R.id.skipButton);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -65,25 +66,17 @@ public class NavigationActivity extends AppCompatActivity {
                 if (getItem(0) < 2)
                     slideViewPager.setCurrentItem(getItem(1), true);
                 else {
-                    Intent i = new Intent(NavigationActivity.this, GetStarted.class);
+                    Intent i = new Intent(NavigationActivity.this, MainActivity.class);
                     startActivity(i);
                     finish();
                 }
-            }
-        });
-        skipButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(NavigationActivity.this, MainActivity.class);
-                startActivity(i);
-                finish();
             }
         });
         slideViewPager = (ViewPager) findViewById(R.id.slideViewPager);
         dotIndicator = (LinearLayout) findViewById(R.id.dotIndicator);
         viewPagerAdapter = new ViewPagerAdapter(this);
         slideViewPager.setAdapter(viewPagerAdapter);
-        setDotIndicator(0);
+        setDotIndicator(0); // coded here
         slideViewPager.addOnPageChangeListener(viewPagerListener);
     }
     public void setDotIndicator(int position) {
@@ -92,7 +85,7 @@ public class NavigationActivity extends AppCompatActivity {
         for (int i = 0; i < dots.length; i++) {
             dots[i] = new TextView(this);
             dots[i].setText(Html.fromHtml("&#8226", Html.FROM_HTML_MODE_LEGACY));
-            dots[i].setTextSize(35);
+            dots[i].setTextSize(100);
             dots[i].setTextColor(getResources().getColor(R.color.grey, getApplicationContext().getTheme()));
             dotIndicator.addView(dots[i]);
         }
