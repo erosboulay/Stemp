@@ -2,10 +2,13 @@ package com.example.stemp.onboarding;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.Html;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -71,12 +74,29 @@ public class NavigationActivity extends AppCompatActivity {
         SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
 
-        // get rid of asystem bars ie make fullscreen
+        // check if onboarding has already been shown
+        SharedPreferences sharedPref = getSharedPreferences("onboarding", Context.MODE_PRIVATE);
+        boolean val = false;
+        boolean defaultValue = sharedPref.getBoolean("done", val);
+        if (defaultValue){
+            Intent i = new Intent(NavigationActivity.this, MainActivity.class);
+            startActivity(i);
+            finish();
+        }
+
+        // trying to make first click interact, wtf the random code from stackoverflow worked
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+
+        // get rid of system bars ie make fullscreen
         WindowInsetsControllerCompat windowInsetsController =
                 WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
         windowInsetsController.hide(WindowInsetsCompat.Type.systemBars());
 
         setContentView(R.layout.activity_navigation);
+
+        // set first page
         backButton = findViewById(R.id.backButton);
         nextButton = findViewById(R.id.nextButton);
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -87,14 +107,25 @@ public class NavigationActivity extends AppCompatActivity {
                 }
             }
         });
+
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (getItem(0) == 1)
+                Log.d("NavigationActivity", "Next button clicked");
+                int index = slideViewPager.getCurrentItem();
+                Log.d("NavigationActivity", "Current Page: " + index);
+
+                if (index == 1)
                     requestRuntimePermission();
-                else if (getItem(0) < 2)
+                else if (index < 2)
                     slideViewPager.setCurrentItem(getItem(1), true);
                 else {
+                    // edit shared preferences to stop onboarding from showing when it is done
+                    SharedPreferences sharedPref = getSharedPreferences("onboarding", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putBoolean("done", true);
+                    editor.apply();
+
                     Intent i = new Intent(NavigationActivity.this, MainActivity.class);
                     startActivity(i);
                     finish();
@@ -104,6 +135,7 @@ public class NavigationActivity extends AppCompatActivity {
 
 
         slideViewPager = findViewById(R.id.slideViewPager);
+        slideViewPager.setCurrentItem(0);
 
         // disable swiping
         slideViewPager.setOnTouchListener(new View.OnTouchListener() {
