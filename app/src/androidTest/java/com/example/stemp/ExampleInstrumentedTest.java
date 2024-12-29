@@ -1,4 +1,4 @@
-package com.example.stamp;
+package com.example.stemp;
 
 import android.content.Context;
 

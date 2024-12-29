@@ -1,4 +1,4 @@
-package com.example.stamp.onboarding;
+package com.example.stemp.onboarding;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -11,7 +11,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -20,8 +19,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.splashscreen.SplashScreen;
 import androidx.viewpager.widget.ViewPager;
 
-import com.example.stamp.MainActivity;
-import com.example.stamp.R;
+import com.example.stemp.MainActivity;
+import com.example.stemp.R;
 
 public class NavigationActivity extends AppCompatActivity {
     // swiper no swiping

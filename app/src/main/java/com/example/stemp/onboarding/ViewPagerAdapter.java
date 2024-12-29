@@ -1,8 +1,7 @@
-package com.example.stamp.onboarding;
+package com.example.stemp.onboarding;
 
 import android.content.Context;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -11,7 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.viewpager.widget.PagerAdapter;
 
-import com.example.stamp.R;
+import com.example.stemp.R;
 
 public class ViewPagerAdapter extends PagerAdapter {
 
