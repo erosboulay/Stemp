@@ -169,7 +169,7 @@ public class NavigationActivity extends AppCompatActivity {
             dots[i].setTextColor(getResources().getColor(R.color.grey, getApplicationContext().getTheme()));
             dotIndicator.addView(dots[i]);
         }
-        dots[position].setTextColor(getResources().getColor(R.color.lavender, getApplicationContext().getTheme()));
+        dots[position].setTextColor(getResources().getColor(R.color.blush, getApplicationContext().getTheme()));
     }
     private int getItem(int i) {
         return slideViewPager.getCurrentItem() + i;
