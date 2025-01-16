@@ -6,4 +6,6 @@
     <string name="screen1desc">I\'m Stemp, humble citizen of this app that\'ll provide you with some stats over your phone usage!</string>
     <string name="screen2desc">- access to call logs\n- another permission\n-another other permission</string>
     <string name="screen3desc"> </string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
