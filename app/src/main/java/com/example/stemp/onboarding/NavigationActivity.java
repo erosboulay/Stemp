@@ -177,6 +177,7 @@ public class NavigationActivity extends AppCompatActivity {
     }
 
     // perms functions
+    //TODO: maybe implement a permissions are granted function check instead of making a check in every if
     private void requestRuntimePermission(){
         if (ActivityCompat.checkSelfPermission(this, PERMISSION_CALL_LOG) == PackageManager.PERMISSION_GRANTED
         && ActivityCompat.checkSelfPermission(this, PERMISSION_CONTACTS) == PackageManager.PERMISSION_GRANTED){
@@ -191,7 +192,7 @@ public class NavigationActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if (requestCode == PERMISSION_REQ_CODE){
-            if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+            if(grantResults.length > 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED){
                 slideViewPager.setCurrentItem(getItem(1), true);
             }
             else{
