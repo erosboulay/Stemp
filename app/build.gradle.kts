@@ -49,4 +49,8 @@ dependencies {
 
     // for splash screen
     implementation(libs.core.splashscreen)
+
+    // for local database (with room)
+    implementation(libs.room.runtime)
+    annotationProcessor(libs.room.compiler)
 }

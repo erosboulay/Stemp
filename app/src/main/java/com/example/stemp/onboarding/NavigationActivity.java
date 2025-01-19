@@ -160,6 +160,9 @@ public class NavigationActivity extends AppCompatActivity {
         setDotIndicator(0); // coded here
         slideViewPager.addOnPageChangeListener(viewPagerListener);
     }
+
+    //TODO: the dot indicator does NOT look good on small phones.
+    // see how to solve that either here or in the xml
     public void setDotIndicator(int position) {
         dots = new TextView[3]; // make 3 dots
         dotIndicator.removeAllViews();
