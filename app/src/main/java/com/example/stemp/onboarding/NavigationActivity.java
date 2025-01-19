@@ -33,6 +33,7 @@ public class NavigationActivity extends AppCompatActivity {
 
     // perms cst
     private static final String PERMISSION_CALL_LOG = Manifest.permission.READ_CALL_LOG;
+    private static final String PERMISSION_CONTACTS = Manifest.permission.READ_CONTACTS;
     private static final int PERMISSION_REQ_CODE = 100;
 
     // instantiate all necessary items
@@ -177,11 +178,12 @@ public class NavigationActivity extends AppCompatActivity {
 
     // perms functions
     private void requestRuntimePermission(){
-        if (ActivityCompat.checkSelfPermission(this, PERMISSION_CALL_LOG) == PackageManager.PERMISSION_GRANTED){
+        if (ActivityCompat.checkSelfPermission(this, PERMISSION_CALL_LOG) == PackageManager.PERMISSION_GRANTED
+        && ActivityCompat.checkSelfPermission(this, PERMISSION_CONTACTS) == PackageManager.PERMISSION_GRANTED){
             slideViewPager.setCurrentItem(getItem(1), true);
         }
         else{
-            ActivityCompat.requestPermissions(this, new String[]{PERMISSION_CALL_LOG}, PERMISSION_REQ_CODE);
+            ActivityCompat.requestPermissions(this, new String[]{PERMISSION_CALL_LOG, PERMISSION_CONTACTS}, PERMISSION_REQ_CODE);
         }
     }
 
