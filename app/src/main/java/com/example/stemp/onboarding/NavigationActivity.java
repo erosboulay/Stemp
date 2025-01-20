@@ -23,10 +23,12 @@ import androidx.core.splashscreen.SplashScreen;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
+import androidx.room.Room;
 import androidx.viewpager.widget.ViewPager;
 
 import com.example.stemp.MainActivity;
 import com.example.stemp.R;
+import com.example.stemp.db.PhonecallDatabase;
 
 public class NavigationActivity extends AppCompatActivity {
     // swiper no swiping
@@ -84,6 +86,13 @@ public class NavigationActivity extends AppCompatActivity {
             startActivity(i);
             finish();
         }
+
+        // create database
+        new Thread(() -> {
+            PhonecallDatabase db = PhonecallDatabase.getInstance(getApplicationContext());
+            db.phonecallDao().getAll();
+            Log.d("DatabaseDebug", "Inserted data into database");
+        }).start();
 
         // trying to make first click interact, wtf the random code from stackoverflow worked
         getWindow().getDecorView().setSystemUiVisibility(
@@ -185,6 +194,9 @@ public class NavigationActivity extends AppCompatActivity {
         if (ActivityCompat.checkSelfPermission(this, PERMISSION_CALL_LOG) == PackageManager.PERMISSION_GRANTED
         && ActivityCompat.checkSelfPermission(this, PERMISSION_CONTACTS) == PackageManager.PERMISSION_GRANTED){
             slideViewPager.setCurrentItem(getItem(1), true);
+
+            //initialize the database
+
         }
         else{
             ActivityCompat.requestPermissions(this, new String[]{PERMISSION_CALL_LOG, PERMISSION_CONTACTS}, PERMISSION_REQ_CODE);
@@ -197,6 +209,12 @@ public class NavigationActivity extends AppCompatActivity {
         if (requestCode == PERMISSION_REQ_CODE){
             if(grantResults.length > 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED){
                 slideViewPager.setCurrentItem(getItem(1), true);
+
+                //initialize the database
+
+
+
+
             }
             else{
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
