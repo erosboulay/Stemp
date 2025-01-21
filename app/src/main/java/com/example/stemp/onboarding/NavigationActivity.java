@@ -6,7 +6,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.text.Html;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -25,10 +28,17 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.room.Room;
 import androidx.viewpager.widget.ViewPager;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
+import androidx.work.WorkerParameters;
 
 import com.example.stemp.MainActivity;
 import com.example.stemp.R;
+import com.example.stemp.db.Contact;
+import com.example.stemp.db.ContactNumber;
 import com.example.stemp.db.PhonecallDatabase;
+import com.example.stemp.db.WorkerAdapter;
 
 public class NavigationActivity extends AppCompatActivity {
     // swiper no swiping
@@ -44,6 +54,9 @@ public class NavigationActivity extends AppCompatActivity {
     Button backButton, nextButton;
     TextView[] dots;
     ViewPagerAdapter viewPagerAdapter;
+
+    // worker
+    WorkRequest populateWorkRequest;
 
     // Update UI when you change a page
     ViewPager.OnPageChangeListener viewPagerListener = new ViewPager.OnPageChangeListener() {
@@ -93,13 +106,16 @@ public class NavigationActivity extends AppCompatActivity {
             finish();
         }
 
-        // create database
-        // TODO: maybe change it to a background task
-        new Thread(() -> {
-            PhonecallDatabase db = PhonecallDatabase.getInstance(getApplicationContext());
-            db.phonecallDao().getAll();
-            Log.d("DatabaseDebug", "Inserted data into database");
-        }).start();
+        // create database during onboarding process
+        Log.d("DatabaseDebug", "Creating database");
+        PhonecallDatabase db = PhonecallDatabase.getInstance(getApplicationContext());
+        Log.d("DatabaseDebug", "Database is created");
+
+        // Database shows up only when a query is made and a query cannot be done in main thread
+        // for testing purpose
+        //new Thread(() -> {
+        //    db.phonecallDao().getAll();
+        //}).start();
 
         // make first click interact
         getWindow().getDecorView().setSystemUiVisibility(
@@ -144,6 +160,7 @@ public class NavigationActivity extends AppCompatActivity {
                     editor.apply();
 
                     Intent i = new Intent(NavigationActivity.this, MainActivity.class);
+
                     startActivity(i);
                     finish();
                 }
@@ -191,6 +208,10 @@ public class NavigationActivity extends AppCompatActivity {
             slideViewPager.setCurrentItem(getItem(1), true);
             //TODO: begin background task to populate database
 
+            // Create worker
+            populateWorkRequest = new OneTimeWorkRequest.Builder(WorkerAdapter.class).build();
+            WorkManager.getInstance(this.getApplicationContext()).enqueue(populateWorkRequest);
+
         }
         else{
             ActivityCompat.requestPermissions(this, new String[]{PERMISSION_CALL_LOG, PERMISSION_CONTACTS}, PERMISSION_REQ_CODE);
@@ -204,6 +225,10 @@ public class NavigationActivity extends AppCompatActivity {
             if(grantResults.length > 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED){
                 slideViewPager.setCurrentItem(getItem(1), true);
                 //TODO: begin background task to populate database
+
+                // Create worker
+                populateWorkRequest = new OneTimeWorkRequest.Builder(WorkerAdapter.class).build();
+                WorkManager.getInstance(this.getApplicationContext()).enqueue(populateWorkRequest);
             }
             else{
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);

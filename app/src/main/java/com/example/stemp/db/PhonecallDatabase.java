@@ -11,6 +11,7 @@ public abstract class PhonecallDatabase extends RoomDatabase {
     public abstract PhonecallDao phonecallDao();
     private static volatile PhonecallDatabase INSTANCE;
 
+    // create singleton
     public static PhonecallDatabase getInstance(Context context){
         if (INSTANCE == null){
             synchronized (PhonecallDatabase.class){

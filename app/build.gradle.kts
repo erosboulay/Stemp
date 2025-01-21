@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace = "com.example.stemp"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.stemp"
@@ -53,4 +53,8 @@ dependencies {
     // for local database (with room)
     implementation(libs.room.runtime)
     annotationProcessor(libs.room.compiler)
+
+    // to handle persistent work that should still work if user navigates off screen, app exits or restarts
+    implementation(libs.work.runtime)
+
 }
