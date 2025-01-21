@@ -19,10 +19,6 @@ public class MainActivity extends AppCompatActivity {
 
     ActivityMainBinding binding;
 
-    // for loading page
-    private ProgressBar progressBar;
-    private String workRequestId;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
