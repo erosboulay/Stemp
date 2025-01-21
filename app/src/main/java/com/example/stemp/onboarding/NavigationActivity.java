@@ -47,9 +47,11 @@ public class NavigationActivity extends AppCompatActivity {
 
     // Update UI when you change a page
     ViewPager.OnPageChangeListener viewPagerListener = new ViewPager.OnPageChangeListener() {
+
         @Override
         public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
         }
+
         @Override
         public void onPageSelected(int position) {
             setDotIndicator(position);
@@ -67,13 +69,17 @@ public class NavigationActivity extends AppCompatActivity {
                 nextButton.setText("Next");
             }
         }
+
         @Override
         public void onPageScrollStateChanged(int state) {
         }
     };
+
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        // show splashscreen
         SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
 
@@ -88,13 +94,14 @@ public class NavigationActivity extends AppCompatActivity {
         }
 
         // create database
+        // TODO: maybe change it to a background task
         new Thread(() -> {
             PhonecallDatabase db = PhonecallDatabase.getInstance(getApplicationContext());
             db.phonecallDao().getAll();
             Log.d("DatabaseDebug", "Inserted data into database");
         }).start();
 
-        // trying to make first click interact, wtf the random code from stackoverflow worked
+        // make first click interact
         getWindow().getDecorView().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
@@ -104,11 +111,7 @@ public class NavigationActivity extends AppCompatActivity {
                 WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
         windowInsetsController.hide(WindowInsetsCompat.Type.systemBars());
 
-        // What the actual fuck the two previous code fragments together successfully the system bars idk why but i ain't complaining
-
         setContentView(R.layout.activity_navigation);
-
-
 
         // set first page
         backButton = findViewById(R.id.backButton);
@@ -121,7 +124,6 @@ public class NavigationActivity extends AppCompatActivity {
                 }
             }
         });
-
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -134,6 +136,7 @@ public class NavigationActivity extends AppCompatActivity {
                 else if (index < 2)
                     slideViewPager.setCurrentItem(getItem(1), true);
                 else {
+                    // TODO: make a function for that maybe
                     // edit shared preferences to stop onboarding from showing when it is done
                     SharedPreferences sharedPref = getSharedPreferences("onboarding", Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPref.edit();
@@ -147,7 +150,6 @@ public class NavigationActivity extends AppCompatActivity {
             }
         });
 
-
         slideViewPager = findViewById(R.id.slideViewPager);
         slideViewPager.setCurrentItem(0);
 
@@ -159,10 +161,6 @@ public class NavigationActivity extends AppCompatActivity {
             }
         });
 
-        // ease-in , ease-out
-
-
-
         dotIndicator = (LinearLayout) findViewById(R.id.dotIndicator);
         viewPagerAdapter = new ViewPagerAdapter(this);
         slideViewPager.setAdapter(viewPagerAdapter);
@@ -170,8 +168,7 @@ public class NavigationActivity extends AppCompatActivity {
         slideViewPager.addOnPageChangeListener(viewPagerListener);
     }
 
-    //TODO: the dot indicator does NOT look good on small phones.
-    // see how to solve that either here or in the xml
+    //TODO: solve dot indicator size on smaller devices, avoid overlapping
     public void setDotIndicator(int position) {
         dots = new TextView[3]; // make 3 dots
         dotIndicator.removeAllViews();
@@ -189,13 +186,10 @@ public class NavigationActivity extends AppCompatActivity {
     }
 
     // perms functions
-    //TODO: maybe implement a permissions are granted function check instead of making a check in every if
     private void requestRuntimePermission(){
-        if (ActivityCompat.checkSelfPermission(this, PERMISSION_CALL_LOG) == PackageManager.PERMISSION_GRANTED
-        && ActivityCompat.checkSelfPermission(this, PERMISSION_CONTACTS) == PackageManager.PERMISSION_GRANTED){
+        if (checkPermissions()){
             slideViewPager.setCurrentItem(getItem(1), true);
-
-            //initialize the database
+            //TODO: begin background task to populate database
 
         }
         else{
@@ -209,12 +203,7 @@ public class NavigationActivity extends AppCompatActivity {
         if (requestCode == PERMISSION_REQ_CODE){
             if(grantResults.length > 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED){
                 slideViewPager.setCurrentItem(getItem(1), true);
-
-                //initialize the database
-
-
-
-
+                //TODO: begin background task to populate database
             }
             else{
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -225,5 +214,9 @@ public class NavigationActivity extends AppCompatActivity {
                 builder.show();
             }
         }
+    }
+    public boolean checkPermissions(){
+        return ActivityCompat.checkSelfPermission(this, PERMISSION_CALL_LOG) == PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, PERMISSION_CONTACTS) == PackageManager.PERMISSION_GRANTED;
     }
 }
