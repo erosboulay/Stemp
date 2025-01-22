@@ -8,22 +8,27 @@ import android.provider.ContactsContract;
 
 import androidx.annotation.NonNull;
 import androidx.room.Ignore;
+import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 public class WorkerAdapter extends Worker {
+    private static final String PROGRESS = "PROGRESS";
     public WorkerAdapter(
             @NonNull Context context,
             @NonNull WorkerParameters params) {
         super(context, params);
     }
 
-
     @NonNull
     @Override
     public Result doWork() {
+        // Set initial progress to 0
+        setProgressAsync(new Data.Builder().putInt(PROGRESS, 0).build());
+
+        //TODO: comment this when I don't need to test loading screen anymore
         try {
-            Thread.sleep(10000);
+            Thread.sleep(5000);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -43,6 +48,10 @@ public class WorkerAdapter extends Worker {
 
         // 1. populate contact
         if (contacts != null){
+            int db_size = contacts.getCount(); // get database size
+            int counter = 0; // set a counter
+
+
             while (contacts.moveToNext()){
                 // get current row
                 int phone_id = contacts.getInt(0);
@@ -55,6 +64,9 @@ public class WorkerAdapter extends Worker {
                 PhonecallDatabase db = PhonecallDatabase.getInstance(this.getApplicationContext());
                 db.phonecallDao().insertContact(temp);
 
+                // update counter
+                counter++;
+                setProgressAsync(new Data.Builder().putInt(PROGRESS, counter).build());
             }
         }
         // 2. populate contact_number and number (only known ones)
@@ -65,8 +77,6 @@ public class WorkerAdapter extends Worker {
         if (contacts != null){
             contacts.close();
         }
-
-
 
         return Result.success();
     }

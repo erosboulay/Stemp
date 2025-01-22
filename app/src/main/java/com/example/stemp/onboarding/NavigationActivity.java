@@ -28,6 +28,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.room.Room;
 import androidx.viewpager.widget.ViewPager;
+import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
@@ -56,7 +57,7 @@ public class NavigationActivity extends AppCompatActivity {
     ViewPagerAdapter viewPagerAdapter;
 
     // worker
-    WorkRequest populateWorkRequest;
+    OneTimeWorkRequest populateWorkRequest;
 
     // Update UI when you change a page
     ViewPager.OnPageChangeListener viewPagerListener = new ViewPager.OnPageChangeListener() {
@@ -160,7 +161,6 @@ public class NavigationActivity extends AppCompatActivity {
                     editor.apply();
 
                     Intent i = new Intent(NavigationActivity.this, MainActivity.class);
-
                     startActivity(i);
                     finish();
                 }
@@ -207,11 +207,9 @@ public class NavigationActivity extends AppCompatActivity {
         if (checkPermissions()){
             slideViewPager.setCurrentItem(getItem(1), true);
             //TODO: begin background task to populate database
-
             // Create worker
             populateWorkRequest = new OneTimeWorkRequest.Builder(WorkerAdapter.class).build();
-            WorkManager.getInstance(this.getApplicationContext()).enqueue(populateWorkRequest);
-
+            WorkManager.getInstance(this.getApplicationContext()).enqueueUniqueWork("populateWorkRequest", ExistingWorkPolicy.REPLACE, populateWorkRequest);
         }
         else{
             ActivityCompat.requestPermissions(this, new String[]{PERMISSION_CALL_LOG, PERMISSION_CONTACTS}, PERMISSION_REQ_CODE);
@@ -225,10 +223,9 @@ public class NavigationActivity extends AppCompatActivity {
             if(grantResults.length > 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED){
                 slideViewPager.setCurrentItem(getItem(1), true);
                 //TODO: begin background task to populate database
-
                 // Create worker
                 populateWorkRequest = new OneTimeWorkRequest.Builder(WorkerAdapter.class).build();
-                WorkManager.getInstance(this.getApplicationContext()).enqueue(populateWorkRequest);
+                WorkManager.getInstance(this.getApplicationContext()).enqueueUniqueWork("populateWorkRequest", ExistingWorkPolicy.REPLACE, populateWorkRequest);
             }
             else{
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
