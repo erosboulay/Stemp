@@ -1,6 +1,10 @@
 package com.example.stemp;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 
@@ -11,16 +15,24 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.work.Data;
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
 import com.example.stemp.databinding.ActivityMainBinding;
+import com.example.stemp.db.WorkerAdapter;
+import com.example.stemp.onboarding.NavigationActivity;
 
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     ActivityMainBinding binding;
+    // worker
+    OneTimeWorkRequest populateWorkRequest;
+    // progress bar
+    ProgressBar pb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,68 +40,19 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         EdgeToEdge.enable(this);
 
-        // add loading bar
-        setContentView(R.layout.progress_bar);
+        SharedPreferences sharedPref = getSharedPreferences("populate_database", Context.MODE_PRIVATE);
+        boolean val = true;
+        boolean populate = sharedPref.getBoolean("populate", val);
 
-        //TODO: initialize progress bar to 0 percent
-
-        // gotta make array otherwise it can't be changed and stuff
-        final int[] local_progress = {0};
-        boolean caught_up = false;
-
-        // TODO: FINISH IT!!!
-        WorkManager.getInstance(this)
-                .getWorkInfosForUniqueWorkLiveData("populateWorkRequest")
-                        .observe(this, new Observer<List<WorkInfo>>() {
-                            @Override
-                            public void onChanged(List<WorkInfo> workInfos) {
-                                if (workInfos != null){
-
-                                    int last = workInfos.size() - 1;
-                                    WorkInfo workinfo = workInfos.get(last);
-                                    WorkInfo.State state =  workinfo.getState();
-                                    Data progress = workinfo.getProgress();
-                                    int value = progress.getInt("PROGRESS", 0);
-
-                                    switch(state){
-                                        case ENQUEUED:
-                                            // do nothing
-                                            break;
-                                        case RUNNING:
-                                            // UPDATE UI SOME KINDA WAY
-                                            if (caught_up){
-                                                local_progress[0] = value;
-                                            }
-                                            else{
-                                                local_progress[0] += 1;
-                                            }
-                                            break;
-                                        case SUCCEEDED:
-                                            // UPDATE UI ANOTHER KINDA WAY
-                                            if (caught_up){
-                                                local_progress[0] = 100;
-                                            }
-                                            else{
-                                                local_progress[0] += 1;
-                                            }
-                                            //
-                                            setContentView(R.layout.activity_main);
-                                            replaceFragment(new HomeFragment());
-                                            break;
-                                        case FAILED:
-                                            // MAYBE HAVE A RETRY BUTTON
-                                        case CANCELLED:
-                                            // ALSO HAVE A RETRY BUTTON
-                                    }
-                                }
-                            }
-                        });
-
-        //TODO: get worker and change layout if worker is done
-
-
-        // setContentView(R.layout.activity_main);
-        //replaceFragment(new HomeFragment()); // initialize app at home layout
+        // populates only once
+        if (populate){
+            populate();
+        }
+        else{
+            // set main activity view
+            setContentView(R.layout.activity_main);
+            replaceFragment(new HomeFragment());
+        }
 
 
         // listen to user switch fragments
@@ -116,6 +79,62 @@ public class MainActivity extends AppCompatActivity {
         FragmentTransaction fragmentTransaction =  fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.frame_layout, fragment);
         fragmentTransaction.commit();
+    }
+
+    private void populate(){
+        // get progressbar
+        setContentView(R.layout.progress_bar);
+        pb = findViewById(R.id.progressBar);
+        pb.setProgress(0, true);
+
+        // begin background task to populate database
+        populateWorkRequest = new OneTimeWorkRequest.Builder(WorkerAdapter.class).build(); // Create worker
+        WorkManager.getInstance(this.getApplicationContext()).enqueueUniqueWork("populateWorkRequest", ExistingWorkPolicy.REPLACE, populateWorkRequest);
+
+        // monitors worker
+        WorkManager.getInstance(this)
+                .getWorkInfosForUniqueWorkLiveData("populateWorkRequest")
+                .observe(this, new Observer<List<WorkInfo>>() {
+                    @Override
+                    public void onChanged(List<WorkInfo> workInfos) {
+                        if (workInfos != null){
+
+                            int last = workInfos.size() - 1;
+                            WorkInfo workinfo = workInfos.get(last);
+                            WorkInfo.State state =  workinfo.getState();
+                            Data progress = workinfo.getProgress();
+                            int value = progress.getInt("PROGRESS", 0);
+
+                            switch(state){
+                                case ENQUEUED:
+                                    // do nothing
+                                    break;
+                                case RUNNING:
+                                    // UPDATE LOADING BAR
+                                    pb.setProgress(value, true);
+                                    break;
+                                case SUCCEEDED:
+                                    // UPDATE LOADING BAR AND SHOW MAIN SCREEN
+                                    pb.setProgress(100, true);
+                                    SharedPreferences sharedPref = getSharedPreferences("populate_database", Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = sharedPref.edit();
+                                    editor.putBoolean("populate", false);
+                                    editor.apply();
+                                    // set main activity view
+                                    setContentView(R.layout.activity_main);
+                                    replaceFragment(new HomeFragment());
+                                    break;
+                                case FAILED:
+                                    // MAYBE HAVE A RETRY BUTTON
+                                    break;
+                                case CANCELLED:
+                                    // ALSO HAVE A RETRY BUTTON
+                                    break;
+                            }
+                        }
+                    }
+                });
+
     }
 
 

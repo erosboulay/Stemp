@@ -26,13 +26,6 @@ public class WorkerAdapter extends Worker {
         // Set initial progress to 0
         setProgressAsync(new Data.Builder().putInt(PROGRESS, 0).build());
 
-        //TODO: comment this when I don't need to test loading screen anymore
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
         // create an URI to access database on the phone
         Uri contactUri = ContactsContract.Contacts.CONTENT_URI;
         String[] projection = new String[] {
@@ -46,6 +39,13 @@ public class WorkerAdapter extends Worker {
         ContentResolver contentResolver = getApplicationContext().getContentResolver();
         Cursor contacts = contentResolver.query(contactUri, projection, null, null, null);
 
+        //TODO: comment this when I don't need to test loading screen anymore
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
         // 1. populate contact
         if (contacts != null){
             int db_size = contacts.getCount(); // get database size
@@ -53,6 +53,7 @@ public class WorkerAdapter extends Worker {
 
 
             while (contacts.moveToNext()){
+
                 // get current row
                 int phone_id = contacts.getInt(0);
                 String lookup_key = contacts.getString(1);
@@ -66,7 +67,8 @@ public class WorkerAdapter extends Worker {
 
                 // update counter
                 counter++;
-                setProgressAsync(new Data.Builder().putInt(PROGRESS, counter).build());
+                int prog = counter*100/db_size;
+                setProgressAsync(new Data.Builder().putInt(PROGRESS, prog).build());
             }
         }
         // 2. populate contact_number and number (only known ones)
