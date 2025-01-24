@@ -13,7 +13,7 @@ public interface PhonecallDao {
     //TODO: understand wtf i need (convenience/query methods)
     @Insert
     void insertContact(Contact contact);
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert//(onConflict = OnConflictStrategy.REPLACE)
     long insertNumber(Number number);
     @Insert
     void insertContactNumber(ContactNumber contactNumber);
@@ -29,5 +29,8 @@ public interface PhonecallDao {
 
     @Query("SELECT contact.local_id FROM contact WHERE contact.phone_id = (:phone_id)")
     int getLocalId(int phone_id);
+
+    @Query("SELECT COUNT(*) FROM number WHERE phone_number = :phoneNumber")
+    int countPhoneNumber(String phoneNumber);
 
 }

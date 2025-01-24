@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="Stemp">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-01-19T16:11:09.974671500Z">
+        <DropdownSelection timestamp="2025-01-24T22:02:44.447312700Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\erosb\.android\avd\Small_Phone_API_35.avd" />
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=22X0219A30008769" />
             </handle>
           </Target>
         </DropdownSelection>

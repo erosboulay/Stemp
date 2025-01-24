@@ -1,10 +1,14 @@
 package com.example.stemp.db;
 
+import static androidx.core.content.ContextCompat.getSystemService;
+
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
+import android.telephony.PhoneNumberUtils;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -14,6 +18,8 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import java.util.List;
+import java.util.HashSet; // Import the HashSet class
+import java.util.Locale;
 
 public class WorkerAdapter extends Worker {
     private static final String PROGRESS = "PROGRESS";
@@ -104,24 +110,49 @@ public class WorkerAdapter extends Worker {
                 Log.d("OPERATING", "getting current row");
                 // get current row
                 int phone_id = data.getInt(0);
-                String phone_number = data.getString(1);
-                // TODO: normalize the phone numbers and avoid duplicates
+                String phone_number = data.getString(2);
 
-                
-                String normalized_phone_number = data.getString(2);
-                Log.d("OPERATING", "phone_id:" + phone_id + "   " + phone_number);
+                // check if contact has phone number
+                if (phone_number != null){
+                    // check if normalized number already exists
+                    String normalized_phone_number = data.getString(1);
+                    if (normalized_phone_number != null){
+                        phone_number = normalized_phone_number;
+                    }
+                    else{
+                        Log.d("INFO", "no normalized phone number");
+                        // get default country code
+                        //TODO: ask for country code or get it from sim card or maybe both
+                        String code = "FR";
+                        Log.d("INFO", "code" + code);
+                        // normalized
+                        phone_number = PhoneNumberUtils.formatNumberToE164(phone_number, code);
+                    }
 
-                Log.d("OPERATING", "Inserting to number");
-                // insert current row into number
-                Number number = new Number(phone_number, true);
-                int number_id = (int) db.phonecallDao().insertNumber(number);
+                    Log.d("OPERATING", "phone_id:" + phone_id + "   " + phone_number + data.getString(2));
+                    // Avoid duplicates
+                    if (db.phonecallDao().countPhoneNumber(phone_number) == 0) {
+                        Log.d("OPERATING", "Inserting to number");
+                        // insert current row into number
+                        Number number = new Number(phone_number, true);
+                        int number_id = (int) db.phonecallDao().insertNumber(number);
+                        Log.d("NUMBER ID", "id " + number_id);
 
-                Log.d("OPERATING", "Inserting to contactnumber");
-                // insert contact_number
-                int local_id = db.phonecallDao().getLocalId(phone_id);
-                Log.d("OPERATING", "local_id" + local_id);
-                ContactNumber contactNumber = new ContactNumber(local_id, number_id);
-                db.phonecallDao().insertContactNumber(contactNumber);
+                        Log.d("OPERATING", "Inserting to ContactNumber");
+                        // insert contact_number
+                        int local_id = db.phonecallDao().getLocalId(phone_id);
+                        Log.d("OPERATING", "local_id" + local_id);
+                        ContactNumber contactNumber = new ContactNumber(local_id, number_id);
+                        db.phonecallDao().insertContactNumber(contactNumber);
+                    }
+                    else{
+                        Log.d("OPERATING", "No insertion");
+                    }
+
+                }
+                else{
+                    Log.d("NO NUMBER", "contact " + phone_id + " does not have a number");
+                }
 
                 // update counter
 

@@ -1,9 +1,10 @@
 package com.example.stemp.db;
 
 import androidx.room.Entity;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-@Entity(tableName = "number")
+@Entity(tableName = "number", indices = {@Index(value = "phone_number", unique = true)})
 public class Number {
     @PrimaryKey(autoGenerate = true)
     public int number_id;
