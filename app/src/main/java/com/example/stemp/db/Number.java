@@ -10,7 +10,10 @@ public class Number {
     public String phone_number;
     public boolean is_known;
 
-    public Number(){
+    public Number(String phone_number, boolean is_known){
+        this.phone_number = phone_number;
+        this.is_known = is_known;
 
+        this.number_id = 0;
     }
 }
