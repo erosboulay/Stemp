@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.provider.ContactsContract;
 import android.telephony.PhoneNumberUtils;
 import android.telephony.TelephonyManager;
+import android.telephony.TelephonyScanManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -116,14 +117,18 @@ public class WorkerAdapter extends Worker {
                 if (phone_number != null){
                     // check if normalized number already exists
                     String normalized_phone_number = data.getString(1);
-                    if (normalized_phone_number != null){
+                    if (false){
+                    //if (normalized_phone_number != null){
                         phone_number = normalized_phone_number;
                     }
                     else{
                         Log.d("INFO", "no normalized phone number");
                         // get default country code
                         //TODO: ask for country code or get it from sim card or maybe both
-                        String code = "FR";
+
+                        TelephonyManager telephonyManager = (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
+                        String code = telephonyManager.getSimCountryIso().toUpperCase();
+
                         Log.d("INFO", "code" + code);
                         // normalized
                         phone_number = PhoneNumberUtils.formatNumberToE164(phone_number, code);
