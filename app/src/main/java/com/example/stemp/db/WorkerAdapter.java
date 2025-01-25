@@ -15,6 +15,9 @@ import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import java.text.DateFormat;
+import java.util.Objects;
+
 public class WorkerAdapter extends Worker {
     private static final String PROGRESS = "PROGRESS";
     public WorkerAdapter(
@@ -155,7 +158,7 @@ public class WorkerAdapter extends Worker {
             while (call.moveToNext()){
                 // for logging
                 call_counter ++;
-                Log.d("ITERATING", "counter: " + call_counter);
+                //Log.d("ITERATING", "counter: " + call_counter);
 
                 String phone_number = call.getString(0);
                 int type = call.getInt(1);
@@ -163,26 +166,35 @@ public class WorkerAdapter extends Worker {
                 long duration = call.getLong(3);
                 int number_id;
 
+                String local_date = DateFormat.getDateInstance().format(date);
+
+
+                String temp = phone_number;
+
                 // get default country code
                 TelephonyManager telephonyManager = (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
                 String code = telephonyManager.getSimCountryIso().toUpperCase();
                 // normalized
-                phone_number = PhoneNumberUtils.formatNumberToE164(phone_number, code);
+
+                //TODO: get phone voicemail number
+                if (!Objects.equals(temp, "123")) {
+                    phone_number = PhoneNumberUtils.formatNumberToE164(phone_number, code);
+                }
 
                 // check if phone number is in number table
                 if (db.phonecallDao().countPhoneNumber(phone_number) == 1){
                     number_id = db.phonecallDao().getNumberId(phone_number);
-                    Log.d("IS IN NUMBER", "number_id : " + number_id);
+                    //Log.d("IS IN NUMBER", "number_id : " + number_id);
                 }
                 else{
                     // phone number is not in number, add it with boolean false because it isn't in contacts
                     Number unkown_number = new Number(phone_number, false);
                     number_id = (int) db.phonecallDao().insertNumber(unkown_number);
-                    Log.d("NOT IN NUMBER", "number_id : " + number_id);
+                    //Log.d("NOT IN NUMBER", "number_id : " + number_id);
                 }
 
                 // add phone call to call
-                Log.d("INSERT", "insert phone call in call");
+                //Log.d("INSERT", "insert phone call in call");
                 Call add_call = new Call(number_id, type, date, duration);
                 db.phonecallDao().insertCall(add_call);
             }
